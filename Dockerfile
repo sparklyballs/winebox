@@ -59,6 +59,12 @@ unzip \
 supervisor \
 openjdk-7-jre-headless" && \
 
+# set runtime deps as a variable
+runtime_deps="wine-gecko2.21 \
+libwine-gecko-2.21 \ 
+libwine-gecko-dbg-2.21 \
+wine-mono0.0.8" && \
+
 # install build-deps , wget and other useful tools
 apt-get update -qy && \
 apt-get install \
