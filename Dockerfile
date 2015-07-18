@@ -9,6 +9,13 @@ CMD ["/sbin/my_init"]
 # Set the locale
 RUN locale-gen en_US.UTF-8 && \
 
+# set common configure options as a variable
+common_configure="--without-hal \
+--without-sane \
+--without-xinerama \
+--without-opencl \
+--without-oss"
+
 # set build deps as a variable
 build_deps="gettext \
 prelink \
@@ -69,22 +76,15 @@ cd wine-* && \
 mkdir wine32 wine64 && \
 cd wine64 && \
 ../configure \
---enable-win64 \
---without-hal \
---without-sane \
---without-xinerama \
---without-opencl \
---without-oss && \
+$common_configure \
+--enable-win64 && \
 make && \
 cd .. && \
 cd wine32 && \
 ../configure \
+$common_configure \
 --without-x \
 --without-freetype \
---without-hal \
---without-sane \
---without-xinerama \
---without-opencl \
 --with-wine64=../wine64 && \
 make && \
 
