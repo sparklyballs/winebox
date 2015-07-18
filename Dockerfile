@@ -36,6 +36,7 @@ apt-get install \
 gcc-multilib \
 g++-multilib \
 openjdk-7-jre-headless \
+supervisor \
 wget \
 unrar \
 unzip -qy && \
@@ -72,8 +73,8 @@ apt-add-repository ppa:ubuntu-mate-dev/ppa && \
 apt-add-repository ppa:ubuntu-mate-dev/trusty-mate && \
 apt-get update -qq && \
 apt-get install \
+--no-install-recommends \
 xrdp \
-supervisor \
 sudo \
 net-tools \
 x11vnc \
