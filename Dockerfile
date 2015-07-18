@@ -41,32 +41,6 @@ wget \
 unrar \
 unzip -qy && \
 
-# fetch wine source
-cd /tmp && \
-wget http://prdownloads.sourceforge.net/wine/wine-1.7.47.tar.bz2 && \
-bzip2 -d wine-* && \
-tar xvf wine-* && \
-cd wine-* && \
-
-# configure and make wine32 and wine64
-mkdir wine32 wine64 && \
-cd wine64 && \
-../configure \
---enable-win64 && \
-make && \
-cd .. && \
-cd wine32 && \
-../configure \
---without-x \
---without-freetype \
---with-wine64=../wine64 && \
-make && \
-
-# install wine32 and wine64
-make install && \	
-cd ../wine64 && \
-make install && \
-
 # install mate desktop and rdp dependencies
 mv /root/excludes /etc/dpkg/dpkg.cfg.d/excludes && \
 apt-add-repository ppa:ubuntu-mate-dev/ppa && \
@@ -93,6 +67,32 @@ usermod -g 100 ubuntu && \
 mv /etc/xrdp/xrdp.ini /etc/xrdp/xrdp.original && \
 mv /root/xrdp.ini /etc/xrdp/xrdp.ini && \
 chown root:root /etc/xrdp/xrdp.ini && \
+
+# fetch wine source
+cd /tmp && \
+wget http://prdownloads.sourceforge.net/wine/wine-1.7.47.tar.bz2 && \
+bzip2 -d wine-* && \
+tar xvf wine-* && \
+cd wine-* && \
+
+# configure and make wine32 and wine64
+mkdir wine32 wine64 && \
+cd wine64 && \
+../configure \
+--enable-win64 && \
+make && \
+cd .. && \
+cd wine32 && \
+../configure \
+--without-x \
+--without-freetype \
+--with-wine64=../wine64 && \
+make && \
+
+# install wine32 and wine64
+make install && \	
+cd ../wine64 && \
+make install && \
 
 # clean up
 cd / && \
