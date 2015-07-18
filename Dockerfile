@@ -14,7 +14,7 @@ common_configure="--without-hal \
 --without-sane \
 --without-xinerama \
 --without-opencl \
---without-oss"
+--without-oss" && \
 
 # set build deps as a variable
 build_deps="gettext \
