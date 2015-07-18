@@ -99,6 +99,15 @@ make install && \
 cd ../wine64 && \
 make install && \
 
+# clean up build dependencies
+apt-get purge --remove \
+$build_deps -qy && \
+apt-get autoremove -qy && \
+
+# install runtime dependencies
+apt-get install \
+$runtime_deps -qy && \
+
 # clean up
 cd / && \
 apt-get clean && \
