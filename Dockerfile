@@ -52,7 +52,7 @@ libcapi20-dev \
 libgstreamer-plugins-base0.10-dev \
 libncurses5-dev" && \
 
-# set useful tools deps as a variable tools
+# set useful tools deps as a variable
 useful_tools="wget \
 unrar \
 unzip \
