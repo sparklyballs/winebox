@@ -6,67 +6,57 @@ ENV DEBIAN_FRONTEND=noninteractive HOME="/root" LANG=en_US.UTF-8 LANGUAGE=en_US:
 
 CMD ["/sbin/my_init"]
 
-# Add local files
-ADD src/ /root/
-
-# set workdir 
-WORKDIR /
-
-# Expose ports 
-EXPOSE 6080 5900 3389
-
 # Set the locale
 RUN locale-gen en_US.UTF-8 && \
 
-# set startup file
-mv /root/firstrun.sh /etc/my_init.d/firstrun.sh && \
-chmod +x /etc/my_init.d/firstrun.sh && \
-
-# add repository for wine build-deps
-add-apt-repository ppa:ubuntu-wine/ppa && \
-
-# update apt
-apt-get update -qq && \
-
-# install wine64 build-deps
-apt-get build-dep wine1.6 -qy && \
-
-# install wine32 build-deps, wget and other useful tools 
-apt-get install \
+# set build deps as a variable
+build_deps="gettext \
+prelink \
 gcc-multilib \
 g++-multilib \
-openjdk-7-jre-headless \
-supervisor \
-wget \
+flex \
+bison \
+libx11-xcb-dev \
+libfreetype6-dev \
+libxcursor-dev \
+libxi-dev \
+libxxf86vm-dev \
+libxrandr-dev \
+libxcomposite-dev \
+libglu1-mesa-dev \
+libosmesa6-dev \
+libxml2-dev \
+libxslt1-dev \
+libgnutls-dev \
+libjpeg-dev \
+libfontconfig1-dev \
+libtiff5-dev \
+libpcap-dev \
+libdbus-1-dev \
+libmpg123-dev \
+libv4l-dev \
+libldap2-dev \
+libopenal-dev \
+libcups2-dev \
+libgphoto2-2-dev \
+libgsm1-dev \
+liblcms2-dev \
+libcapi20-dev \
+libgstreamer-plugins-base0.10-dev \
+libncurses5-dev" && \
+
+# set useful tools deps as a variable tools
+useful_tools="wget \
 unrar \
-unzip -qy && \
+unzip \
+supervisor \
+openjdk-7-jre-headless" && \
 
-# install mate desktop and rdp dependencies
-mv /root/excludes /etc/dpkg/dpkg.cfg.d/excludes && \
-apt-add-repository ppa:ubuntu-mate-dev/ppa && \
-apt-add-repository ppa:ubuntu-mate-dev/trusty-mate && \
-apt-get update -qq && \
+# install build-deps , wget and other useful tools
+apt-get update -qy && \
 apt-get install \
---no-install-recommends \
-xrdp \
-sudo \
-net-tools \
-x11vnc \
-xvfb \
-mate-desktop-environment-core -qy && \
-
-# create ubuntu user
-useradd --create-home --shell /bin/bash --user-group --groups adm,sudo ubuntu && \
-echo "ubuntu:PASSWD" | chpasswd && \
-
-# set user ubuntu to same uid and guid as nobody:users in unraid
-usermod -u 99 ubuntu && \
-usermod -g 100 ubuntu && \
-
-# swap in modified xrdp.ini
-mv /etc/xrdp/xrdp.ini /etc/xrdp/xrdp.original && \
-mv /root/xrdp.ini /etc/xrdp/xrdp.ini && \
-chown root:root /etc/xrdp/xrdp.ini && \
+$useful_tools \
+$build_deps -qy && \
 
 # fetch wine source
 cd /tmp && \
@@ -79,13 +69,22 @@ cd wine-* && \
 mkdir wine32 wine64 && \
 cd wine64 && \
 ../configure \
---enable-win64 && \
+--enable-win64 \
+--without-hal \
+--without-sane \
+--without-xinerama \
+--without-opencl \
+--without-oss && \
 make && \
 cd .. && \
 cd wine32 && \
 ../configure \
 --without-x \
 --without-freetype \
+--without-hal \
+--without-sane \
+--without-xinerama \
+--without-opencl \
 --with-wine64=../wine64 && \
 make && \
 
@@ -97,10 +96,6 @@ make install && \
 # clean up
 cd / && \
 apt-get clean && \
-rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-/usr/share/man /usr/share/groff /usr/share/info \
-/usr/share/lintian /usr/share/linda /var/cache/man && \
-(( find /usr/share/doc -depth -type f ! -name copyright|xargs rm || true )) && \
-(( find /usr/share/doc -empty|xargs rmdir || true ))
+rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
