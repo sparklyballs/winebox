@@ -9,7 +9,7 @@ CMD ["/sbin/my_init"]
 # Set the locale
 RUN locale-gen en_US.UTF-8 && \
 
-# set common configure options as a variable
+# set common wine configure options as a variable
 common_configure="--without-hal \
 --without-sane \
 --without-xinerama \
