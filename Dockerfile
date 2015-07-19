@@ -1,11 +1,11 @@
 # set base os
 FROM debian:wheezy
 
-# Set environment variables for my_init, terminal and apache
-#ENV DEBIAN_FRONTEND=noninteractive HOME="/root"
+# Set environment variables
+#ENV DEBIAN_FRONTEND=noninteractive HOME="/root" TERM=xterm
 
 # add local files
-ADD src/ /tmp/
+ADD glibconfig.h.diff /tmp/
 
 # install some prebuild packages
 RUN apt-get update && \
@@ -17,15 +17,20 @@ git -qy && \
 cd /tmp && \
 git clone git://source.winehq.org/git/wine.git /tmp/wine-git && \
 
-# install build packages
+# add ubuntu wine ppa repository
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F9CB8DB0 && \
 echo "deb http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu trusty main" >> /etc/apt/sources.list && \
 echo "deb-src http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu trusty main" >> /etc/apt/sources.list && \
+
+# update apt and install misc packages
 apt-get update -qq && \
 apt-get install \
 libsane-dev \
+wine-gecko2.36 \
+wine-mono4.5.6 \
 libtiff4-dev -qy && \
 
+# install main body of wine build-deps 
 apt-get build-dep wine1.7 -y && \
 apt-get install \
 libgstreamer-plugins-base0.10-dev \
@@ -102,6 +107,8 @@ echo 'INPUT(libncurses.so.5 -ltinfo)' >libncurses.so && \
 # install remaining dependencies
 apt-get install \
 libgstreamer-plugins-base0.10-0:i386  -qy && \
+
+# more smylinking
 cd /usr/lib/i386-linux-gnu && \
 ln -s libgstapp-0.10.so.0 libgstapp-0.10.so && \
 ln -s libgstbase-0.10.so.0 libgstbase-0.10.so && \
@@ -110,19 +117,27 @@ ln -s libgobject-2.0.so.0 libgobject-2.0.so && \
 ln -s libgmodule-2.0.so.0 libgmodule-2.0.so && \
 ln -s libgthread-2.0.so.0 libgthread-2.0.so && \
 ln -s /lib/i386-linux-gnu/libglib-2.0.so.0 libglib-2.0.so && \
+
+# apply gstreamer patch
 cd /usr/lib/x86_64-linux-gnu/glib-2.0/include && \
 patch </tmp/glibconfig.h.diff && \
 
-# compile wine builds
+# compile and install wine builds
 cd /tmp && \
 mkdir wine64 && \
 cd wine64 && \
-../wine-git/configure --enable-win64 && \
+../wine-git/configure \
+--without-hal \
+--enable-win64 && \
 make > make.log 2>&1 && \
 cd .. && \
 mkdir wine32 && \
 cd wine32 && \
-../wine-git/configure --with-wine64=../wine64 && \
+../wine-git/configure \
+--without-hal \
+--without-sane \
+--without-pcap \
+--with-wine64=../wine64 && \
 make > make.log 2>&1 && \
 make install && \
 cd ../wine64 && \
