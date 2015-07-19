@@ -25,34 +25,34 @@ flex \
 bison \" && \
 
 # set 64bit build deps as a variable
-build_deps64="libx11-xcb-dev \
-libfreetype6-dev \
-libxcursor-dev \
-libxi-dev \
-libxxf86vm-dev \
-libxrandr-dev \
-libxcomposite-dev \
-libglu1-mesa-dev \
-libosmesa6-dev \
-libxml2-dev \
-libxslt1-dev \
-libgnutls-dev \
-libjpeg-dev \
-libfontconfig1-dev \
-libtiff5-dev \
-libpcap-dev \
-libdbus-1-dev \
-libmpg123-dev \
-libv4l-dev \
-libldap2-dev \
-libopenal-dev \
-libcups2-dev \
-libgphoto2-2-dev \
-libgsm1-dev \
-liblcms2-dev \
-libcapi20-dev \
-libgstreamer-plugins-base0.10-dev \
-libncurses5-dev" && \
+build_deps64="libx11-xcb-dev:amd64 \
+libfreetype6-dev:amd64 \
+libxcursor-dev:amd64 \
+libxi-dev:amd64 \
+libxxf86vm-dev:amd64 \
+libxrandr-dev:amd64 \
+libxcomposite-dev:amd64 \
+libglu1-mesa-dev:amd64 \
+libosmesa6-dev:amd64 \
+libxml2-dev:amd64 \
+libxslt1-dev:amd64 \
+libgnutls-dev:amd64 \
+libjpeg-dev:amd64 \
+libfontconfig1-dev:amd64 \
+libtiff5-dev:amd64 \
+libpcap-dev:amd64 \
+libdbus-1-dev:amd64 \
+libmpg123-dev:amd64 \
+libv4l-dev:amd64 \
+libldap2-dev:amd64 \
+libopenal-dev:amd64 \
+libcups2-dev:amd64 \
+libgphoto2-2-dev:amd64 \
+libgsm1-dev:amd64 \
+liblcms2-dev:amd64 \
+libcapi20-dev:amd64 \
+libgstreamer-plugins-base0.10-dev:amd64 \
+libncurses5-dev:amd64" && \
 
 # set 32bit build deps as a variable
 build_deps32="libx11-xcb-dev:i386 \
@@ -93,20 +93,16 @@ openjdk-7-jre-headless" && \
 # set runtime deps as a variable
 runtime_deps="" && \
 
-# install 64bit build-deps , wget and other useful tools
-apt-get update -qy && \
-apt-get install \
-$useful_tools \
-$build_deps64 -qy && \
-
 # set 386 as additional architecture
 dpkg --add-architecture i386 && \
 
-# install common build-deps and 32bit build-deps
-apt-get update -qq && \
+# install build-deps , wget and other useful tools
+apt-get update -qy && \
 apt-get install \
-$build_depsC \
-$build_deps32 -qy && \
+$useful_tools \
+$build_deps32 \
+$build_deps64 \
+$build_depsC -qy && \
 
 # fetch wine source
 cd /tmp && \
