@@ -2,7 +2,7 @@
 FROM debian:wheezy
 
 # Set environment variables
-#ENV DEBIAN_FRONTEND=noninteractive HOME="/root" TERM=xterm
+ENV DEBIAN_FRONTEND=noninteractive HOME="/root" TERM=xterm
 
 # add local files
 ADD glibconfig.h.diff /tmp/
