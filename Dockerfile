@@ -16,14 +16,16 @@ common_configure="--without-hal \
 --without-opencl \
 --without-oss" && \
 
-# set build deps as a variable
-build_deps="gettext \
+# set common build deps as a variable
+build_depsC="gettext \
 prelink \
 gcc-multilib \
 g++-multilib \
 flex \
-bison \
-libx11-xcb-dev \
+bison \" && \
+
+# set 64bit build deps as a variable
+build_deps64="libx11-xcb-dev \
 libfreetype6-dev \
 libxcursor-dev \
 libxi-dev \
@@ -52,6 +54,35 @@ libcapi20-dev \
 libgstreamer-plugins-base0.10-dev \
 libncurses5-dev" && \
 
+# set 32bit build deps as a variable
+build_deps32="libx11-xcb-dev:i386 \
+libfreetype6-dev:i386 \
+libxcursor-dev:i386 \
+libxi-dev:i386 \
+libxxf86vm-dev:i386 \
+libxrandr-dev:i386 \
+libxcomposite-dev:i386 \
+libglu1-mesa-dev:i386 \
+libosmesa6-dev:i386 \
+libxml2-dev:i386 \
+libxslt1-dev:i386 \
+libgnutls-dev:i386 \
+libjpeg-dev:i386 \
+libfontconfig1-dev:i386 \
+libtiff5-dev:i386 \
+libpcap-dev:i386 \
+libdbus-1-dev:i386 \
+libmpg123-dev:i386 \
+libv4l-dev:i386 \
+libldap2-dev:i386 \
+libopenal-dev:i386 \
+libcups2-dev:i386 \
+libgphoto2-2-dev:i386 \
+libgsm1-dev:i386 \
+liblcms2-dev:i386 \
+libcapi20-dev:i386 \
+libncurses5-dev:i386" && \
+
 # set useful tools deps as a variable
 useful_tools="wget \
 unrar \
@@ -60,16 +91,22 @@ supervisor \
 openjdk-7-jre-headless" && \
 
 # set runtime deps as a variable
-runtime_deps="wine-gecko2.21 \
-libwine-gecko-2.21 \ 
-libwine-gecko-dbg-2.21 \
-wine-mono0.0.8" && \
+runtime_deps="" && \
 
-# install build-deps , wget and other useful tools
+# install 64bit build-deps , wget and other useful tools
 apt-get update -qy && \
 apt-get install \
 $useful_tools \
-$build_deps -qy && \
+$build_deps64 -qy && \
+
+# set 386 as additional architecture
+dpkg --add-architecture i386 && \
+
+# install common build-deps and 32bit build-deps
+apt-get update -qq && \
+apt-get install \
+$build_depsC \
+$build_deps32 -qy && \
 
 # fetch wine source
 cd /tmp && \
@@ -101,12 +138,10 @@ make install && \
 
 # clean up build dependencies
 apt-get purge --remove \
-$build_deps -qy && \
+$build_depsC \
+$build_deps32 \
+$build_deps64 -qy && \
 apt-get autoremove -qy && \
-
-# install runtime dependencies
-apt-get install \
-$runtime_deps -qy && \
 
 # clean up
 cd / && \
