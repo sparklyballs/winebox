@@ -1,147 +1,135 @@
 # set base os
-FROM phusion/baseimage:0.9.16
+FROM debian:wheezy
 
 # Set environment variables for my_init, terminal and apache
-ENV DEBIAN_FRONTEND=noninteractive HOME="/root" LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
+#ENV DEBIAN_FRONTEND=noninteractive HOME="/root"
 
-CMD ["/sbin/my_init"]
+# add local files
+ADD src/ /tmp/
 
-# Set the locale
-RUN locale-gen en_US.UTF-8 && \
-
-# set common wine configure options as a variable
-common_configure="--without-hal \
---without-sane \
---without-xinerama \
---without-opencl \
---without-oss" && \
-
-# set common build deps as a variable
-build_depsC="gettext \
-prelink \
-gcc-multilib \
-g++-multilib \
-flex \
-bison \" && \
-
-# set 64bit build deps as a variable
-build_deps64="libx11-xcb-dev:amd64 \
-libfreetype6-dev:amd64 \
-libxcursor-dev:amd64 \
-libxi-dev:amd64 \
-libxxf86vm-dev:amd64 \
-libxrandr-dev:amd64 \
-libxcomposite-dev:amd64 \
-libglu1-mesa-dev:amd64 \
-libosmesa6-dev:amd64 \
-libxml2-dev:amd64 \
-libxslt1-dev:amd64 \
-libgnutls-dev:amd64 \
-libjpeg-dev:amd64 \
-libfontconfig1-dev:amd64 \
-libtiff5-dev:amd64 \
-libpcap-dev:amd64 \
-libdbus-1-dev:amd64 \
-libmpg123-dev:amd64 \
-libv4l-dev:amd64 \
-libldap2-dev:amd64 \
-libopenal-dev:amd64 \
-libcups2-dev:amd64 \
-libgphoto2-2-dev:amd64 \
-libgsm1-dev:amd64 \
-liblcms2-dev:amd64 \
-libcapi20-dev:amd64 \
-libgstreamer-plugins-base0.10-dev:amd64 \
-libncurses5-dev:amd64" && \
-
-# set 32bit build deps as a variable
-build_deps32="libx11-xcb-dev:i386 \
-libfreetype6-dev:i386 \
-libxcursor-dev:i386 \
-libxi-dev:i386 \
-libxxf86vm-dev:i386 \
-libxrandr-dev:i386 \
-libxcomposite-dev:i386 \
-libglu1-mesa-dev:i386 \
-libosmesa6-dev:i386 \
-libxml2-dev:i386 \
-libxslt1-dev:i386 \
-libgnutls-dev:i386 \
-libjpeg-dev:i386 \
-libfontconfig1-dev:i386 \
-libtiff5-dev:i386 \
-libpcap-dev:i386 \
-libdbus-1-dev:i386 \
-libmpg123-dev:i386 \
-libv4l-dev:i386 \
-libldap2-dev:i386 \
-libopenal-dev:i386 \
-libcups2-dev:i386 \
-libgphoto2-2-dev:i386 \
-libgsm1-dev:i386 \
-liblcms2-dev:i386 \
-libcapi20-dev:i386 \
-libncurses5-dev:i386" && \
-
-# set useful tools deps as a variable
-useful_tools="wget \
-unrar \
-unzip \
-supervisor \
-openjdk-7-jre-headless" && \
-
-# set runtime deps as a variable
-runtime_deps="" && \
-
-# set 386 as additional architecture
-dpkg --add-architecture i386 && \
-
-# install build-deps , wget and other useful tools
-apt-get update -qy && \
+# install some prebuild packages
+RUN apt-get update && \
 apt-get install \
-$useful_tools \
-$build_deps32 \
-$build_deps64 \
-$build_depsC -qy && \
+wget \
+git -qy && \
 
-# fetch wine source
+# clone wine git repository 
 cd /tmp && \
-wget http://prdownloads.sourceforge.net/wine/wine-1.7.47.tar.bz2 && \
-bzip2 -d wine-* && \
-tar xvf wine-* && \
-cd wine-* && \
+git clone git://source.winehq.org/git/wine.git /tmp/wine-git && \
 
-# configure and make wine32 and wine64
-mkdir wine32 wine64 && \
+# install build packages
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F9CB8DB0 && \
+echo "deb http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu trusty main" >> /etc/apt/sources.list && \
+echo "deb-src http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu trusty main" >> /etc/apt/sources.list && \
+apt-get update -qq && \
+apt-get install \
+libsane-dev \
+libtiff4-dev -qy && \
+
+apt-get build-dep wine1.7 -y && \
+apt-get install \
+libgstreamer-plugins-base0.10-dev \
+libhal-dev \
+liblcms2-dev \
+libosmesa6-dev \
+ocl-icd-opencl-dev -qy && \
+
+# install 32 bit dependencies
+dpkg --add-architecture i386 && \
+apt-get update -qq && \
+apt-get install \
+gcc-multilib \
+libasound2-dev:i386 \
+libgsm1-dev:i386 \
+libjpeg8-dev:i386 \
+liblcms2-dev:i386 \
+libldap2-dev:i386 \
+libmpg123-dev:i386 \
+libopenal-dev:i386 \
+libv4l-dev:i386 \
+libx11-dev:i386 \
+libxinerama-dev:i386 \
+libxml2-dev:i386 \ 
+\zlib1g-dev:i386 -qy && \
+
+# install more 32 bit dependencies
+apt-get install \
+libcapi20-dev:i386 \
+libcups2:i386 \
+libdbus-1-3:i386 \
+libfontconfig:i386 \
+libfreetype6:i386 \
+libglu1-mesa:i386 \
+libgnutls26:i386 \
+libgphoto2-2:i386 \
+libncurses5:i386 \
+libosmesa6:i386 \
+libsane:i386 \
+libxcomposite1:i386 \
+libxcursor1:i386 \
+libxi6:i386 \
+libxrandr2:i386 \
+libxslt1.1:i386 \
+ocl-icd-libopencl1:i386 -qy && \
+
+# symlink some packages
+cd /usr/lib/i386-linux-gnu && \
+ln -s libcups.so.2 libcups.so && \
+ln -s libexif.so.12 libexif.so && \
+ln -s libfontconfig.so.1 libfontconfig.so && \
+ln -s libfreetype.so.6 libfreetype.so && \
+ln -s libGL.so.1 libGL.so && \
+ln -s libGLU.so.1 libGLU.so && \
+ln -s libgnutls.so.26 libgnutls.so && \
+ln -s libgphoto2.so.2 libgphoto2.so && \
+ln -s libgphoto2_port.so.0 libgphoto2_port.so && \
+ln -s libOSMesa.so.6 libOSMesa.so && \
+ln -s libsane.so.1 libsane.so && \
+ln -s libtiff.so.4 libtiff.so && \
+ln -s libXcomposite.so.1 libXcomposite.so && \
+ln -s libXcursor.so.1 libXcursor.so && \
+ln -s libXi.so.6 libXi.so && \ 
+ln -s libXrandr.so.2 libXrandr.so && \
+ln -s libXrender.so.1 libXrender.so && \
+ln -s libxslt.so.1 libxslt.so && \
+ln -s libXxf86vm.so.1 libXxf86vm.so && \
+ln -s /lib/i386-linux-gnu/libdbus-1.so.3 libdbus-1.so && \
+ln -s /lib/i386-linux-gnu/libpng12.so.0 libpng12.so && \
+ln -s /lib/i386-linux-gnu/libtinfo.so.5 libtinfo.so && \
+ln -s libpng12.so libpng.so && \
+echo 'INPUT(libncurses.so.5 -ltinfo)' >libncurses.so && \
+
+# install remaining dependencies
+apt-get install \
+libgstreamer-plugins-base0.10-0:i386  -qy && \
+cd /usr/lib/i386-linux-gnu && \
+ln -s libgstapp-0.10.so.0 libgstapp-0.10.so && \
+ln -s libgstbase-0.10.so.0 libgstbase-0.10.so && \
+ln -s libgstreamer-0.10.so.0 libgstreamer-0.10.so && \
+ln -s libgobject-2.0.so.0 libgobject-2.0.so && \
+ln -s libgmodule-2.0.so.0 libgmodule-2.0.so && \
+ln -s libgthread-2.0.so.0 libgthread-2.0.so && \
+ln -s /lib/i386-linux-gnu/libglib-2.0.so.0 libglib-2.0.so && \
+cd /usr/lib/x86_64-linux-gnu/glib-2.0/include && \
+patch </tmp/glibconfig.h.diff && \
+
+# compile wine builds
+cd /tmp && \
+mkdir wine64 && \
 cd wine64 && \
-../configure \
-$common_configure \
---enable-win64 && \
-make && \
+../wine-git/configure --enable-win64 && \
+make > make.log 2>&1 && \
 cd .. && \
+mkdir wine32 && \
 cd wine32 && \
-../configure \
-$common_configure \
---without-x \
---without-freetype \
---with-wine64=../wine64 && \
-make && \
-
-# install wine32 and wine64
-make install && \	
+../wine-git/configure --with-wine64=../wine64 && \
+make > make.log 2>&1 && \
+make install && \
 cd ../wine64 && \
 make install && \
-
-# clean up build dependencies
-apt-get purge --remove \
-$build_depsC \
-$build_deps32 \
-$build_deps64 -qy && \
-apt-get autoremove -qy && \
 
 # clean up
 cd / && \
 apt-get clean && \
 rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 
