@@ -50,7 +50,7 @@ libv4l-dev:i386 \
 libx11-dev:i386 \
 libxinerama-dev:i386 \
 libxml2-dev:i386 \ 
-\zlib1g-dev:i386 -qy && \
+zlib1g-dev:i386 -qy && \
 
 # install more 32 bit dependencies
 apt-get install \
