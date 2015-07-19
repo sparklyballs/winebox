@@ -128,6 +128,7 @@ mkdir wine64 && \
 cd wine64 && \
 ../wine-git/configure \
 --without-hal \
+--without-sane \
 --enable-win64 && \
 make > make.log 2>&1 && \
 cd .. && \
