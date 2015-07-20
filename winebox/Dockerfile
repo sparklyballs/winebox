@@ -14,13 +14,10 @@ WORKDIR /
 EXPOSE 6080 5900 3389
 
 # install packages
-RUN echo "deb http://http.us.debian.org/debian wheezy main non-free" >> /etc/apt/sources.list && \
-apt-get update -qq && \
+RUN apt-get update -qq && \
 apt-get install \
 --no-install-recommends \
 supervisor \
-unrar \
-unzip \
 xrdp \
 sudo \
 nano \
