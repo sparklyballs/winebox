@@ -18,6 +18,7 @@ RUN apt-get update -qq && \
 apt-get install \
 --no-install-recommends \
 supervisor \
+openjdk-7-jre-headless \
 xrdp \
 sudo \
 nano \
