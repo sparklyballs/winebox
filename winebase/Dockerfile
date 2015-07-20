@@ -17,14 +17,17 @@ git -qy && \
 cd /tmp && \
 git clone git://source.winehq.org/git/wine.git /tmp/wine-git && \
 
-# add ubuntu wine ppa repository
+# add ubuntu wine ppa and debian non-free repositories
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F9CB8DB0 && \
 echo "deb http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu trusty main" >> /etc/apt/sources.list && \
 echo "deb-src http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu trusty main" >> /etc/apt/sources.list && \
+echo "deb http://http.us.debian.org/debian wheezy main non-free" >> /etc/apt/sources.list && \
 
 # update apt and install misc packages
 apt-get update -qq && \
 apt-get install \
+unrar \
+unzip \
 libsane-dev \
 wine-gecko2.36 \
 wine-mono4.5.6 \
