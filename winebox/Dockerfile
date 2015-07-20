@@ -1,5 +1,5 @@
 # set base os
-FROM sparklyballs/winebox
+FROM sparklyballs/winebase
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive HOME="/root" TERM=xterm
